@@ -39,3 +39,7 @@
 
 # debug information files
 *.dwo
+
+build*
+StereoMaker/build
+CMakeLists.txt.user*
