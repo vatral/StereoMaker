@@ -7,6 +7,9 @@ find_package(Qt6 REQUIRED COMPONENTS Core)
 find_package(Qt6 REQUIRED COMPONENTS Core)
 find_package(Qt6 REQUIRED COMPONENTS Core)
 
+find_package(OpenCV REQUIRED)
+
+
 qt_standard_project_setup()
 
 qt_add_executable(StereoMaker
@@ -20,6 +23,7 @@ qt_add_executable(StereoMaker
     imagedecoder.h imagedecoder.cpp
     imagecomposer.h imagecomposer.cpp
     qtlogging.ini
+    findcamerasdialog.h findcamerasdialog.cpp findcamerasdialog.ui
 )
 
 qt_add_translations(
@@ -32,6 +36,7 @@ target_link_libraries(StereoMaker
         Qt::Core
         Qt::Widgets
         Qt::Network
+        ${OpenCV_LIBS}
 )
 target_link_libraries(StereoMaker PRIVATE Qt6::Core)
 target_link_libraries(StereoMaker PRIVATE Qt6::Core)
