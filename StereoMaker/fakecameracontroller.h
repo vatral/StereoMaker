@@ -58,7 +58,7 @@ private:
     int _offset{0};
     int _width{1364};
     int _height{1024};
-    const std::chrono::milliseconds DEFAULT_INTERVAL{15};
+    const std::chrono::milliseconds DEFAULT_INTERVAL{100};
 
     QByteArray _imageData;
     QTimer _streamTimer;
