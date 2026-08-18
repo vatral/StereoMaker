@@ -5,6 +5,8 @@
 #include "fakecameracontroller.h"
 
 #include <QButtonGroup>
+#include <QVideoSink>
+#include <QVideoFrame>
 
 Q_LOGGING_CATEGORY(MainLog, "stereomaker.mainwindow")
 
@@ -110,8 +112,8 @@ void MainWindow::setupFakeCameras()
     // Flow:
     // Camera -> Decoder -> Vision processor -> Composer -> Screen
 
-    leftCamera->loadImage(QCoreApplication::applicationDirPath() +  "/test_images/left.jpg");
-    rightCamera->loadImage(QCoreApplication::applicationDirPath() + "/test_images/right.jpg");
+    leftCamera->loadImage(QCoreApplication::applicationDirPath() +  "/test_images/left_smaller.jpg");
+    rightCamera->loadImage(QCoreApplication::applicationDirPath() + "/test_images/right_smaller.jpg");
 
     connect(leftCamera, &CameraController::connected, this, [this,leftCamera]() { leftCamera->startStream(); } );
     connect(rightCamera, &CameraController::connected, this, [this,rightCamera]() { rightCamera->startStream(); } );
@@ -147,8 +149,9 @@ void MainWindow::setupFakeCameras()
 
 void MainWindow::showComposedImage(const QImage &img)
 {
-    QPixmap pix = QPixmap::fromImage(img);
-    ui->imageLabel->setPixmap(pix);
+//    QPixmap pix = QPixmap::fromImage(img);
+    ui->imageWidget->videoSink()->setVideoFrame(QVideoFrame(img));
+
 }
 
 void MainWindow::enableImageProcessors()

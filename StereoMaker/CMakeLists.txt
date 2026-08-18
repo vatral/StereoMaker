@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.19)
 project(StereoMaker LANGUAGES CXX)
 
-find_package(Qt6 6.5 REQUIRED COMPONENTS Core Widgets LinguistTools Network)
+find_package(Qt6 6.5 REQUIRED COMPONENTS Core Widgets LinguistTools Network MultimediaWidgets)
 find_package(Qt6 REQUIRED COMPONENTS Core Widgets Network)
 find_package(Qt6 REQUIRED COMPONENTS Core)
 find_package(Qt6 REQUIRED COMPONENTS Core)
@@ -39,6 +39,7 @@ target_link_libraries(StereoMaker
         Qt::Core
         Qt::Widgets
         Qt::Network
+        Qt::MultimediaWidgets
         ${OpenCV_LIBS}
 )
 target_link_libraries(StereoMaker PRIVATE Qt6::Core)
