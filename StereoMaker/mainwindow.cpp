@@ -34,6 +34,13 @@ MainWindow::MainWindow(QWidget *parent)
     qCDebug(MainLog) << "Debug test";
 
     _composer.setStereoMode(ImageComposer::StereoMode::Anaglyph);
+
+    connect(ui->leftImageButton, &QPushButton::clicked, [this]() { _composer.setStereoMode(ImageComposer::StereoMode::LeftOnly);});
+    connect(ui->rightImageButton, &QPushButton::clicked, [this]() { _composer.setStereoMode(ImageComposer::StereoMode::RightOnly);});
+    connect(ui->sideBySideButton, &QPushButton::clicked, [this]() { _composer.setStereoMode(ImageComposer::StereoMode::SideBySide);});
+    connect(ui->anaglyphButton, &QPushButton::clicked, [this]() { _composer.setStereoMode(ImageComposer::StereoMode::Anaglyph);});
+    connect(ui->transparencyButton, &QPushButton::clicked, [this]() { _composer.setStereoMode(ImageComposer::StereoMode::Blend50_50);});
+
     setupFakeCameras();
 }
 
