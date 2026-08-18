@@ -33,6 +33,7 @@ public:
     explicit ImageComposer(QObject *parent = nullptr);
     void registerPosition(QObject *decoder, int pos);
 
+    void clearPositions() { _positionMapping.clear(); }
 public slots:
     void processImage(const QImage &image);
 

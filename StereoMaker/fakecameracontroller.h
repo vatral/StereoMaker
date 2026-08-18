@@ -4,9 +4,14 @@
 #include <QObject>
 #include "cameracontroller.h"
 #include <QTimer>
+#include <QLoggingCategory>
 
 
-class FakeCameraController : CameraController
+Q_DECLARE_LOGGING_CATEGORY(FakeCamLog);
+
+
+
+class FakeCameraController : public CameraController
 {
     Q_OBJECT
 public:
@@ -35,6 +40,7 @@ public:
 
     void setInterval(std::chrono::milliseconds ms) { _streamTimer.setInterval(ms);}
 
+    bool loadImage(const QString &img);
 
 public slots:
     virtual void connectToCamera() override;
@@ -42,6 +48,9 @@ public slots:
     virtual void startStream() override;
     virtual void stopStream() override;
     virtual void takePicture() override;
+private slots:
+
+    void timerElapsed();
 
 private:
     bool _connected{false};
@@ -51,6 +60,7 @@ private:
     int _height{1024};
     const std::chrono::milliseconds DEFAULT_INTERVAL{15};
 
+    QByteArray _imageData;
     QTimer _streamTimer;
 };
 

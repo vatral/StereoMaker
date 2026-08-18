@@ -2,6 +2,8 @@
 #include "ui_mainwindow.h"
 #include "lumixcameracontroller.h"
 #include "findcamerasdialog.h"
+#include "fakecameracontroller.h"
+
 #include <QButtonGroup>
 
 Q_LOGGING_CATEGORY(MainLog, "stereomaker.mainwindow")
@@ -21,12 +23,18 @@ MainWindow::MainWindow(QWidget *parent)
     imageButtonGroup->addButton(ui->anaglyphButton);
     imageButtonGroup->addButton(ui->transparencyButton);
 
+    ui->anaglyphButton->setChecked(true);
+
     connect(&_camScanner, &CameraScanner::progress, this, &MainWindow::scanProgress);
     connect(&_camScanner, &CameraScanner::finished, this, &MainWindow::scanFinished);
     connect(&_camScanner, &CameraScanner::cameraFound, this, &MainWindow::scanFoundCamera);
 
+    connect(&_composer, &ImageComposer::composedImage, this, &MainWindow::showComposedImage);
     qCInfo(MainLog) << "Started";
     qCDebug(MainLog) << "Debug test";
+
+    _composer.setStereoMode(ImageComposer::StereoMode::Anaglyph);
+    setupFakeCameras();
 }
 
 MainWindow::~MainWindow()
@@ -41,6 +49,10 @@ void MainWindow::scanClicked() {
     qCInfo(MainLog) << "Scan clicked";
 
     ui->scanButton->setEnabled(false);
+    _cameras.clear();
+    _decoders.clear();
+    _composer.clearPositions();
+
     _camScanner.scan();
 
 }
@@ -65,6 +77,54 @@ void MainWindow::showScanWindow() {
     findCams->setWindowModality(Qt::WindowModal);
     findCams->show();
 
+}
+
+void MainWindow::setupFakeCameras()
+{
+    qCInfo(MainLog) << "Setting up fake cameras";
+
+    _cameras.clear();
+    _decoders.clear();
+    _composer.clearPositions();
+
+    FakeCameraController *leftCamera = new FakeCameraController(QUrl());
+    FakeCameraController *rightCamera = new FakeCameraController(QUrl());
+    ImageDecoder *leftDecoder = new ImageDecoder();
+    ImageDecoder *rightDecoder = new ImageDecoder();
+
+
+    leftCamera->loadImage(QCoreApplication::applicationDirPath() +  "/test_images/left.jpg");
+    rightCamera->loadImage(QCoreApplication::applicationDirPath() + "/test_images/right.jpg");
+
+    connect(leftCamera, &CameraController::connected, this, [this,leftCamera]() { leftCamera->startStream(); } );
+    connect(rightCamera, &CameraController::connected, this, [this,rightCamera]() { rightCamera->startStream(); } );
+
+
+    connect(leftCamera, &CameraController::imageReceived, leftDecoder, &ImageDecoder::processImageData);
+    connect(rightCamera, &CameraController::imageReceived, rightDecoder, &ImageDecoder::processImageData);
+
+    _composer.registerPosition(leftDecoder, 0);
+    _composer.registerPosition(rightDecoder, 1);
+
+    connect(leftDecoder, &ImageDecoder::decodedImage, &_composer, &ImageComposer::processImage);
+    connect(rightDecoder, &ImageDecoder::decodedImage, &_composer, &ImageComposer::processImage);
+
+    _cameras.append(QSharedPointer<CameraController>(leftCamera));
+    _cameras.append(QSharedPointer<CameraController>(rightCamera));
+
+    _decoders.append(QSharedPointer<ImageDecoder>(leftDecoder));
+    _decoders.append(QSharedPointer<ImageDecoder>(rightDecoder));
+
+
+    leftCamera->connectToCamera();
+    rightCamera->connectToCamera();
+
+}
+
+void MainWindow::showComposedImage(const QImage &img)
+{
+    QPixmap pix = QPixmap::fromImage(img);
+    ui->imageLabel->setPixmap(pix);
 }
 
 void MainWindow::scanFoundCamera(QUrl url) {

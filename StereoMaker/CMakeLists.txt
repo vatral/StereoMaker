@@ -59,3 +59,6 @@ qt_generate_deploy_app_script(
     NO_UNSUPPORTED_PLATFORM_ERROR
 )
 install(SCRIPT ${deploy_script})
+
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test_images
+     DESTINATION ${CMAKE_CURRENT_BINARY_DIR})

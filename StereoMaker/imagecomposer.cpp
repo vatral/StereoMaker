@@ -26,6 +26,8 @@ void ImageComposer::registerPosition(QObject *decoder, int pos) {
 void ImageComposer::processImage(const QImage &image) {
     QObject *sender = QObject::sender();
 
+//    qCInfo(ComposerLog) << "Processing";
+
     if (!_positionMapping.contains(sender)) {
         qCCritical(ComposerLog) << "Got signal from unregistered object" << sender;
         return;

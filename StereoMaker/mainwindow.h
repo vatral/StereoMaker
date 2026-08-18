@@ -38,12 +38,17 @@ public slots:
     void scanFoundCamera(QUrl base);
     void showScanWindow();
 
+    void setupFakeCameras();
+
+
+    void showComposedImage(const QImage &img);
+
 
 
 private:
     Ui::MainWindow *ui;
     CameraScanner _camScanner;
-    QList<QSharedPointer<LumixCameraController>> _cameras;
+    QList<QSharedPointer<CameraController>> _cameras;
     QList<QSharedPointer<ImageDecoder>> _decoders;
     ImageComposer _composer;
 
