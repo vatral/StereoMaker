@@ -41,6 +41,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->anaglyphButton, &QPushButton::clicked, [this]() { _composer.setStereoMode(ImageComposer::StereoMode::Anaglyph);});
     connect(ui->transparencyButton, &QPushButton::clicked, [this]() { _composer.setStereoMode(ImageComposer::StereoMode::Blend50_50);});
 
+    connect(ui->calibrationCheckbox, &QCheckBox::checkStateChanged, this, &MainWindow::enableImageProcessors);
+    connect(ui->swapSidesCheckbox, &QCheckBox::checkStateChanged, [this]() { _composer.setFlipSides(ui->swapSidesCheckbox->isChecked()); });
     setupFakeCameras();
 }
 
@@ -59,6 +61,7 @@ void MainWindow::scanClicked() {
     _cameras.clear();
     _decoders.clear();
     _composer.clearPositions();
+    _visions.clear();
 
     _camScanner.scan();
 
@@ -92,6 +95,7 @@ void MainWindow::setupFakeCameras()
 
     _cameras.clear();
     _decoders.clear();
+    _visions.clear();
     _composer.clearPositions();
 
     FakeCameraController *leftCamera = new FakeCameraController(QUrl());
@@ -99,6 +103,12 @@ void MainWindow::setupFakeCameras()
     ImageDecoder *leftDecoder = new ImageDecoder();
     ImageDecoder *rightDecoder = new ImageDecoder();
 
+    ImageVisionProcessor *leftVision = new ImageVisionProcessor();
+    ImageVisionProcessor *rightVision = new ImageVisionProcessor();
+
+
+    // Flow:
+    // Camera -> Decoder -> Vision processor -> Composer -> Screen
 
     leftCamera->loadImage(QCoreApplication::applicationDirPath() +  "/test_images/left.jpg");
     rightCamera->loadImage(QCoreApplication::applicationDirPath() + "/test_images/right.jpg");
@@ -110,17 +120,24 @@ void MainWindow::setupFakeCameras()
     connect(leftCamera, &CameraController::imageReceived, leftDecoder, &ImageDecoder::processImageData);
     connect(rightCamera, &CameraController::imageReceived, rightDecoder, &ImageDecoder::processImageData);
 
-    _composer.registerPosition(leftDecoder, 0);
-    _composer.registerPosition(rightDecoder, 1);
+    _composer.registerPosition(leftVision, 0);
+    _composer.registerPosition(rightVision, 1);
 
-    connect(leftDecoder, &ImageDecoder::decodedImage, &_composer, &ImageComposer::processImage);
-    connect(rightDecoder, &ImageDecoder::decodedImage, &_composer, &ImageComposer::processImage);
+    connect(leftDecoder, &ImageDecoder::decodedImage, leftVision, &ImageVisionProcessor::processImage);
+    connect(rightDecoder, &ImageDecoder::decodedImage, rightVision, &ImageVisionProcessor::processImage);
+
+    connect(leftVision, &ImageVisionProcessor::processedImage, &_composer, &ImageComposer::processImage);
+    connect(rightVision, &ImageVisionProcessor::processedImage, &_composer, &ImageComposer::processImage);
+
 
     _cameras.append(QSharedPointer<CameraController>(leftCamera));
     _cameras.append(QSharedPointer<CameraController>(rightCamera));
 
     _decoders.append(QSharedPointer<ImageDecoder>(leftDecoder));
     _decoders.append(QSharedPointer<ImageDecoder>(rightDecoder));
+
+    _visions.append(QSharedPointer<ImageVisionProcessor>(leftVision));
+    _visions.append(QSharedPointer<ImageVisionProcessor>(rightVision));
 
 
     leftCamera->connectToCamera();
@@ -134,11 +151,27 @@ void MainWindow::showComposedImage(const QImage &img)
     ui->imageLabel->setPixmap(pix);
 }
 
+void MainWindow::enableImageProcessors()
+{
+    qCInfo(MainLog) << "Changing vision processor state to" << ui->calibrationCheckbox->isChecked();
+
+    for(auto vision : _visions) {
+        vision->setEnabled(ui->calibrationCheckbox->isChecked());
+    }
+}
+
 void MainWindow::scanFoundCamera(QUrl url) {
     qCInfo(MainLog) << "Found camera at" << url;
 
+
+    // Flow:
+    // Camera -> Decoder -> Vision processor -> Composer -> Screen
+
+
     LumixCameraController *cam = new LumixCameraController(url);
     ImageDecoder *decoder = new ImageDecoder();
+    ImageVisionProcessor *vision = new ImageVisionProcessor();
+
 
     // HACK, fix later
     _composer.registerPosition(decoder, _cameras.length());
@@ -146,11 +179,12 @@ void MainWindow::scanFoundCamera(QUrl url) {
     connect(cam, &LumixCameraController::imageReceived, decoder, &ImageDecoder::processImageData);
     connect(cam, &LumixCameraController::connected, this, [this,cam]() { cam->startStream(); } );
 
-    connect(decoder, &ImageDecoder::decodedImage, &_composer, &ImageComposer::processImage);
-
+    connect(decoder, &ImageDecoder::decodedImage, vision, &ImageVisionProcessor::processImage);
+    connect(vision, &ImageVisionProcessor::processedImage, &_composer, &ImageComposer::processImage);
 
     _cameras.append(QSharedPointer<LumixCameraController>(cam));
     _decoders.append(QSharedPointer<ImageDecoder>(decoder));
+    _visions.append(QSharedPointer<ImageVisionProcessor>(vision));
 
     cam->connectToCamera();
 

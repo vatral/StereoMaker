@@ -72,14 +72,14 @@
            </widget>
           </item>
           <item>
-           <widget class="QCheckBox" name="checkBox">
+           <widget class="QCheckBox" name="swapSidesCheckbox">
             <property name="text">
              <string>Swap sides</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QCheckBox" name="checkBox_2">
+           <widget class="QCheckBox" name="calibrationCheckbox">
             <property name="text">
              <string>Calibration</string>
             </property>

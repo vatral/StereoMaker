@@ -11,6 +11,8 @@
 #include "camerascanner.h"
 #include "imagecomposer.h"
 #include "imagedecoder.h"
+#include "imagevisionprocessor.h"
+
 #include "lumixcameracontroller.h"
 
 
@@ -43,6 +45,7 @@ public slots:
 
     void showComposedImage(const QImage &img);
 
+    void enableImageProcessors();
 
 
 private:
@@ -50,6 +53,8 @@ private:
     CameraScanner _camScanner;
     QList<QSharedPointer<CameraController>> _cameras;
     QList<QSharedPointer<ImageDecoder>> _decoders;
+    QList<QSharedPointer<ImageVisionProcessor>> _visions;
+
     ImageComposer _composer;
 
 
