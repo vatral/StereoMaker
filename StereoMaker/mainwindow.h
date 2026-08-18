@@ -36,6 +36,7 @@ public slots:
     void scanProgress(int max, int value);
     void scanFinished();
     void scanFoundCamera(QUrl base);
+    void showScanWindow();
 
 
 

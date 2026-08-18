@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "lumixcameracontroller.h"
+#include "findcamerasdialog.h"
 
 Q_LOGGING_CATEGORY(MainLog, "stereomaker.mainwindow")
 
@@ -45,6 +46,15 @@ void MainWindow::scanProgress(int max, int value) {
 void MainWindow::scanFinished() {
     ui->scanButton->setEnabled(true);
     qCInfo(MainLog) << "Scan finished";
+}
+
+void MainWindow::showScanWindow() {
+    qCInfo(MainLog) << "Showing scan window";
+
+    FindCamerasDialog *findCams = new FindCamerasDialog(this);
+    findCams->setWindowModality(Qt::WindowModal);
+    findCams->show();
+
 }
 
 void MainWindow::scanFoundCamera(QUrl url) {
