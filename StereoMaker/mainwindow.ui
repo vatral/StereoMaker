@@ -26,12 +26,18 @@
             <property name="text">
              <string>Left</string>
             </property>
+            <property name="checkable">
+             <bool>true</bool>
+            </property>
            </widget>
           </item>
           <item>
            <widget class="QPushButton" name="rightImageButton">
             <property name="text">
              <string>Right</string>
+            </property>
+            <property name="checkable">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -40,6 +46,9 @@
             <property name="text">
              <string>SBS</string>
             </property>
+            <property name="checkable">
+             <bool>true</bool>
+            </property>
            </widget>
           </item>
           <item>
@@ -47,12 +56,18 @@
             <property name="text">
              <string>Anaglyph</string>
             </property>
+            <property name="checkable">
+             <bool>true</bool>
+            </property>
            </widget>
           </item>
           <item>
            <widget class="QPushButton" name="transparencyButton">
             <property name="text">
              <string>50/50</string>
+            </property>
+            <property name="checkable">
+             <bool>true</bool>
             </property>
            </widget>
           </item>

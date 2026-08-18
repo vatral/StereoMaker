@@ -9,8 +9,8 @@
 
 Q_LOGGING_CATEGORY(LumixLog, "stereomaker.controller.lumix")
 
-LumixCameraController::LumixCameraController(QUrl base) : _base(base) {
-//    connect(reply, &QIODevice::readyRead, this, &LumixCameraController::reqReadyRead);
+LumixCameraController::LumixCameraController(QUrl base) : CameraController(base), _base(base) {
+//    connect(reply,Q_OBJECT &QIODevice::readyRead, this, &LumixCameraController::reqReadyRead);
 //    connect(reply, &QNetworkReply::errorOccurred, this, &LumixCameraController::reqErrorOccurred);
 //    connect(reply, &QNetworkReply::sslErrors, this, &LumixCameraController::reqSslErrors);
 //    connect(reply, &QNetworkReply::finished, this, &LumixCameraController::reqFinished);

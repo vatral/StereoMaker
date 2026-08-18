@@ -43,7 +43,7 @@ void ImageComposer::processImage(const QImage &image) {
 
     if (_images.length() == 1) {
         // Only one source, output as-is
-        emit composedImage(_imags[pos]);
+        emit composedImage(_images[pos]);
     } else if (_images.length() == 2) {
         QImage out;
 

@@ -24,6 +24,8 @@ qt_add_executable(StereoMaker
     imagecomposer.h imagecomposer.cpp
     qtlogging.ini
     findcamerasdialog.h findcamerasdialog.cpp findcamerasdialog.ui
+    cameracontroller.h cameracontroller.cpp
+    fakecameracontroller.h fakecameracontroller.cpp
 )
 
 qt_add_translations(

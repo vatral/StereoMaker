@@ -11,12 +11,15 @@
 #include <QTimer>
 #include <QUuid>
 
+#include "cameracontroller.h"
+
 Q_DECLARE_LOGGING_CATEGORY(LumixLog)
 
 
-class LumixCameraController : public QObject
+class LumixCameraController : public CameraController
 {
-    Q_OBJECT
+Q_OBJECT
+
 public:
     LumixCameraController(QUrl base);
 
@@ -26,14 +29,14 @@ public:
      *
      * Runs asynchronously
      */
-    void command(const QString &cmd);
+    virtual void command(const QString &cmd) override;
 
 public slots:
-    void connectToCamera();
+    virtual void connectToCamera() override;
 
-    void startStream();
-    void stopStream();
-    void takePicture();
+    virtual void startStream() override;
+    virtual void stopStream() override;
+    virtual void takePicture() override;
 
     void videoReadyRead();
 

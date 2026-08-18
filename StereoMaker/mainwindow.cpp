@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 #include "lumixcameracontroller.h"
 #include "findcamerasdialog.h"
+#include <QButtonGroup>
 
 Q_LOGGING_CATEGORY(MainLog, "stereomaker.mainwindow")
 
@@ -10,6 +11,15 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
+    QButtonGroup *imageButtonGroup = new QButtonGroup(this);
+    imageButtonGroup->setExclusive(true);
+
+    imageButtonGroup->addButton(ui->leftImageButton);
+    imageButtonGroup->addButton(ui->rightImageButton);
+    imageButtonGroup->addButton(ui->sideBySideButton);
+    imageButtonGroup->addButton(ui->anaglyphButton);
+    imageButtonGroup->addButton(ui->transparencyButton);
 
     connect(&_camScanner, &CameraScanner::progress, this, &MainWindow::scanProgress);
     connect(&_camScanner, &CameraScanner::finished, this, &MainWindow::scanFinished);
