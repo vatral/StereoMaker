@@ -64,8 +64,10 @@ void MainWindow::scanClicked() {
     _decoders.clear();
     _composer.clearPositions();
     _visions.clear();
+    ui->imageWidget->videoSink()->setVideoFrame(QVideoFrame());
 
     _camScanner.scan();
+
 
 }
 
@@ -163,6 +165,15 @@ void MainWindow::enableImageProcessors()
     }
 }
 
+void MainWindow::takePictureClicked()
+{
+    qCInfo(MainLog) << "Taking picture";
+
+    for(const auto cam : _cameras) {
+        cam->takePicture();
+    }
+}
+
 void MainWindow::scanFoundCamera(QUrl url) {
     qCInfo(MainLog) << "Found camera at" << url;
 
@@ -177,11 +188,11 @@ void MainWindow::scanFoundCamera(QUrl url) {
 
 
     // HACK, fix later
-    _composer.registerPosition(decoder, _cameras.length());
+    _composer.registerPosition(vision, _visions.length());
 
-    connect(cam, &LumixCameraController::imageReceived, decoder, &ImageDecoder::processImageData);
     connect(cam, &LumixCameraController::connected, this, [this,cam]() { cam->startStream(); } );
 
+    connect(cam, &LumixCameraController::imageReceived, decoder, &ImageDecoder::processImageData);
     connect(decoder, &ImageDecoder::decodedImage, vision, &ImageVisionProcessor::processImage);
     connect(vision, &ImageVisionProcessor::processedImage, &_composer, &ImageComposer::processImage);
 

@@ -239,8 +239,8 @@
    <slot>scanClicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>790</x>
-     <y>112</y>
+     <x>967</x>
+     <y>111</y>
     </hint>
     <hint type="destinationlabel">
      <x>528</x>
@@ -255,8 +255,8 @@
    <slot>showScanWindow()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>622</x>
-     <y>49</y>
+     <x>967</x>
+     <y>71</y>
     </hint>
     <hint type="destinationlabel">
      <x>587</x>
@@ -264,9 +264,26 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>captureButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>takePictureClicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>71</x>
+     <y>545</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>3</x>
+     <y>512</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>scanClicked()</slot>
   <slot>showScanWindow()</slot>
+  <slot>takePictureClicked()</slot>
  </slots>
 </ui>

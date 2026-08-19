@@ -47,6 +47,8 @@ public slots:
 
     void enableImageProcessors();
 
+    void takePictureClicked();
+
 
 private:
     Ui::MainWindow *ui;

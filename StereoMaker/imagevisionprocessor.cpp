@@ -46,7 +46,7 @@ void ImageVisionProcessor::processImage(const QImage &img)
     arucoDetector.detectMarkers(gray, markerCorners, markerIds);
 
     if (markerIds.empty()) {
-        //qInfo() << "ChArUco: no ArUco markers detected";
+        qInfo() << "ChArUco: no ArUco markers detected";
         return;
     }
 

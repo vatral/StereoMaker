@@ -16,17 +16,20 @@ LumixCameraController::LumixCameraController(QUrl base) : CameraController(base)
 //    connect(reply, &QNetworkReply::finished, this, &LumixCameraController::reqFinished);
 
     connect(&_videoSocket, &QIODevice::readyRead, this, &LumixCameraController::videoReadyRead);
+    connect(&_stateTimer, &QTimer::timeout, this, &LumixCameraController::stateTimerFired);
 
 }
 
-QNetworkReply* LumixCameraController::makeCameraCommand(const QString &cmd) {
+QNetworkReply* LumixCameraController::makeCameraCommand(const QString &cmd, const QString &arg) {
     QUrl url(_base);
     QUrlQuery query;
 
-
-    query.addQueryItem("mode", "camcmd");
-    query.addQueryItem("value", "cmd");
-
+    url.setPath("/cam.cgi");
+    query.addQueryItem("mode", cmd);
+    if (!arg.isEmpty()) {
+        query.addQueryItem("value", arg);
+    }
+    url.setQuery(query);
 
     qCInfo(LumixLog) << "Camera command" << url;
     QNetworkRequest req(url);
@@ -35,7 +38,7 @@ QNetworkReply* LumixCameraController::makeCameraCommand(const QString &cmd) {
 }
 
 void LumixCameraController::command(const QString &cmd) {
-    QNetworkReply *reply = makeCameraCommand(cmd);
+    QNetworkReply *reply = makeCameraCommand("camcmd", cmd);
 
 
     connect(reply, &QIODevice::readyRead, this, &LumixCameraController::reqReadyRead);
@@ -98,11 +101,32 @@ void LumixCameraController::connectToCamera() {
         connect(reply2, &QIODevice::readyRead, this, [this,reply2]() {
             auto data = reply2->readAll();
             qCInfo(LumixLog) << "Second step of authentication returned: " << data;
-            emit connected();
+           // emit connected();
 
 
 
-            auto reply3 = makeCameraCommand("");
+            auto reply3 = makeCameraCommand("camcmd", "recmode");
+            connect(reply3, &QIODevice::readyRead, this, [this, reply3]() {
+                auto data = reply3->readAll();
+
+                qCInfo(LumixLog) << "Camera put into recording mode" << data;
+
+                _stateTimer.setSingleShot(false);
+                _stateTimer.start(STATE_TIMER_INTERVAL);
+
+                emit connected();
+            });
+
+            connect(reply3, &QNetworkReply::errorOccurred, this, [this, reply3](QNetworkReply::NetworkError code) {
+                qCInfo(LumixLog) << "Failed to put camera into recording mode, code" << code;
+                emit connectionFailure();
+            });
+
+            connect(reply3, &QNetworkReply::finished, this, [this,reply3]() {
+                reply3->deleteLater();
+            });
+
+
         });
 
 
@@ -169,6 +193,20 @@ void LumixCameraController::stopStream() {
 }
 
 void LumixCameraController::takePicture() {
+    auto reply = makeCameraCommand("camcmd", "capture");
+
+    connect(reply, &QIODevice::readyRead, this, [this, reply]() {
+        auto data = reply->readAll();
+        qCInfo(LumixLog) << "Picture taken:" << data;
+    });
+
+    connect(reply, &QNetworkReply::errorOccurred, this, [this, reply](QNetworkReply::NetworkError code) {
+        qCWarning(LumixLog) << "Failed to take picture, code" << code;
+    });
+
+    connect(reply, &QNetworkReply::finished, this, [this,reply]() {
+        reply->deleteLater();
+    });
 
 }
 
@@ -225,6 +263,7 @@ void LumixCameraController::videoReadyRead() {
     QByteArray image_data = _videoBuffer.sliced(0, end+END_MARKER.length());
     _videoBuffer.remove(0, end + END_MARKER.length());
 
+    emit imageReceived(image_data);
 
 }
 
@@ -235,6 +274,26 @@ void LumixCameraController::reqSslErrors(const QList<QSslError> &errors) {
 
 }
 void LumixCameraController::reqFinished() {
+
+}
+
+void LumixCameraController::stateTimerFired() {
+    auto reply = makeCameraCommand("getstate");
+    connect(reply, &QIODevice::readyRead, this, [this, reply]() {
+        //auto data = reply->readAll();
+        // todo
+    });
+
+    connect(reply, &QNetworkReply::errorOccurred, this, [this, reply](QNetworkReply::NetworkError code) {
+        qCInfo(LumixLog) << "Failed to get camera state, code" << code;
+        emit connectionFailure();
+    });
+
+    connect(reply, &QNetworkReply::finished, this, [this,reply]() {
+        reply->deleteLater();
+    });
+
+
 
 }
 
