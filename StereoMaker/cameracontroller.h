@@ -18,6 +18,10 @@ public:
      */
     virtual void command(const QString &cmd) = 0;
 
+    QString cameraName() const { return _cameraName; }
+protected:
+    void setCameraName(const QString &name) { _cameraName = name; }
+
 public slots:
     virtual void connectToCamera() = 0;
 
@@ -31,6 +35,8 @@ signals:
     void connectionFailure();
     void imageReceived(const QByteArray &data);
 
+private:
+    QString _cameraName{""};
 };
 
 #endif // CAMERACONTROLLER_H

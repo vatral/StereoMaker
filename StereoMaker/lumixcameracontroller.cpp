@@ -62,7 +62,7 @@ void LumixCameraController::connectToCamera() {
     query.addQueryItem("type", "req_acc");
     //query.addQueryItem("value", MAGIC_AUTH_VALUE1);
     //query.addQueryItem("value2", MAGIC_AUTH_VALUE2);
-    query.addQueryItem("value", getAppUUID().toString());
+    query.addQueryItem("value", getAppUUID().toString(QUuid::WithoutBraces));
     query.addQueryItem("value2", QCoreApplication::applicationName());
 
 
@@ -78,7 +78,23 @@ void LumixCameraController::connectToCamera() {
     connect(reply, &QIODevice::readyRead, this, [this,reply]() {
         auto data = reply->readAll();
         qCInfo(LumixLog) << "First step of authentication returned: " << data;
+        QString stringData(data);
 
+        QStringList parts = stringData.split(',');
+        if (parts.length() < 2) {
+            qCCritical(LumixLog) << "Too little information returned, something wrong";
+            emit connectionFailure();
+            return;
+        }
+
+        if (parts[0] != "ok") {
+            qCCritical(LumixLog) << "Connection status is not ok, something wrong";
+            emit connectionFailure();
+            return;
+        }
+
+        qCInfo(LumixLog) << "This camera is:" << parts[1];
+        setCameraName(parts[1]);
 
         QUrl url(_base);
         QUrlQuery query;

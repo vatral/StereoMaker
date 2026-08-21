@@ -202,5 +202,15 @@ void MainWindow::scanFoundCamera(QUrl url) {
 
     cam->connectToCamera();
 
+    // Even more horrible HACK
+    // Just hardcode the cameras for now, and make sure the MACHBEL one
+    // is always on the left.
+    if (_cameras.length() > 1) {
+        qCWarning(MainLog) << "Applying horrible camera order hack";
+        if (_cameras[1]->cameraName().contains("MACHBEL")) {
+            _composer.registerPosition(_visions[1].get(), 0);
+            _composer.registerPosition(_visions[1].get(), 1);
+        }
+    }
 
 }
