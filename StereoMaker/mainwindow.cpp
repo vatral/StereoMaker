@@ -152,6 +152,7 @@ void MainWindow::setupFakeCameras()
 void MainWindow::showComposedImage(const QImage &img)
 {
 //    QPixmap pix = QPixmap::fromImage(img);
+    _screenshot.setImage(img);
     ui->imageWidget->videoSink()->setVideoFrame(QVideoFrame(img));
 
 }
@@ -172,6 +173,9 @@ void MainWindow::takePictureClicked()
     for(const auto cam : _cameras) {
         cam->takePicture();
     }
+
+    const QString timestamp = QDateTime::currentDateTime().toString("yyyy-MM-dd_HH-mm-ss");
+    _screenshot.takeScreenshot(timestamp);
 }
 
 void MainWindow::scanFoundCamera(QUrl url) {

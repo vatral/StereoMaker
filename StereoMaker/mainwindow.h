@@ -14,6 +14,8 @@
 #include "imagevisionprocessor.h"
 
 #include "lumixcameracontroller.h"
+#include "screenshotwriter.h"
+
 
 
 Q_DECLARE_LOGGING_CATEGORY(MainLog)
@@ -58,7 +60,7 @@ private:
     QList<QSharedPointer<ImageVisionProcessor>> _visions;
 
     ImageComposer _composer;
-
+    ScreenshotWriter _screenshot;
 
 };
 #endif // MAINWINDOW_H

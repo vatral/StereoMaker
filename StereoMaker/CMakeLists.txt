@@ -27,6 +27,7 @@ qt_add_executable(StereoMaker
     cameracontroller.h cameracontroller.cpp
     fakecameracontroller.h fakecameracontroller.cpp
     imagevisionprocessor.h imagevisionprocessor.cpp
+    screenshotwriter.h screenshotwriter.cpp
 )
 
 qt_add_translations(
