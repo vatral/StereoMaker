@@ -53,7 +53,7 @@ signals:
 
 private slots:
     void stateTimerFired();
-
+    void streamTimerFired();
 
 private:
     /*
@@ -142,9 +142,10 @@ private:
     const QString MAGIC_AUTH_VALUE2{"MI 5"};
 
     const int STATE_TIMER_INTERVAL = 1000;
+    const int STREAM_TIMER_INTERVAL = 5000;
 
     QTimer _stateTimer;
-
+    QTimer _streamTimer;
 
 
 };

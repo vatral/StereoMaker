@@ -17,7 +17,10 @@ LumixCameraController::LumixCameraController(QUrl base) : CameraController(base)
 
     connect(&_videoSocket, &QIODevice::readyRead, this, &LumixCameraController::videoReadyRead);
     connect(&_stateTimer, &QTimer::timeout, this, &LumixCameraController::stateTimerFired);
+    connect(&_streamTimer, &QTimer::timeout, this, &LumixCameraController::streamTimerFired);
 
+    _streamTimer.setSingleShot(false);
+    _streamTimer.setInterval(STREAM_TIMER_INTERVAL);
 }
 
 QNetworkReply* LumixCameraController::makeCameraCommand(const QString &cmd, const QString &arg) {
@@ -172,6 +175,10 @@ void LumixCameraController::connectToCamera() {
 
 void LumixCameraController::startStream() {
 
+    if (_videoSocket.state() != QAbstractSocket::UnconnectedState) {
+        _videoSocket.close();
+    }
+
     _videoSocket.bind(QHostAddress::AnyIPv4);
 
 
@@ -200,6 +207,7 @@ void LumixCameraController::startStream() {
     connect(reply, &QNetworkReply::sslErrors, this, &LumixCameraController::reqSslErrors);
     connect(reply, &QNetworkReply::finished, this, &LumixCameraController::reqFinished);
 
+    _streamTimer.start(STREAM_TIMER_INTERVAL);
 
 
 }
@@ -251,6 +259,9 @@ void LumixCameraController::videoReadyRead() {
     qCDebug(LumixLog) << "Received datagram, " << datagram.data().length() << "bytes from" << datagram.senderAddress() << ":" << datagram.senderPort();
 
     _videoBuffer.append(datagram.data());
+
+    _streamTimer.stop();
+    _streamTimer.start();
 
     if (_videoBuffer.size() > MAX_BUFFER_LENGTH) {
         qCCritical(LumixLog) << "Maximum buffer length exceeded, starting from scratch";
@@ -311,6 +322,12 @@ void LumixCameraController::stateTimerFired() {
 
 
 
+}
+
+void LumixCameraController::streamTimerFired()
+{
+    qCWarning(LumixLog) << "Stream timer timed out, re-starting stream";
+    startStream();
 }
 
 
